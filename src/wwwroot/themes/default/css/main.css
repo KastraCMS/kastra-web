@@ -691,7 +691,7 @@ button.button {
 main {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-around;
+    justify-content: center;
 }
 
 main .page-content {

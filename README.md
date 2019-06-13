@@ -1,8 +1,10 @@
 # Kastra.Web
 
+[![Join the chat at https://gitter.im/kastra-web/community](https://badges.gitter.im/kastra-web/community.svg)](https://gitter.im/kastra-web/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## Minimum requirements
 
-* .NET Core Runtime 2.1.6
+* .NET Core Runtime 2.1.11
 * SQL Server Database 2008 or higher
 * IIS or Nginx or Apache server
 
