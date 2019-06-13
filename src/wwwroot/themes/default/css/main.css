@@ -696,6 +696,7 @@ main {
 
 main .page-content {
     max-width: 800px;
+    width: 100%;
 }
 
 main .page-content p {

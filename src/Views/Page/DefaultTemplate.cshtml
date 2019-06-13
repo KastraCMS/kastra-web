@@ -43,7 +43,9 @@
     <div class="content-container">
         <main class="content">
             @await Component.InvokeAsync(Model.Header.ModuleViewComponent, new { data = Model.Header })
-            @await Component.InvokeAsync(Model.Body.ModuleViewComponent, new { data = Model.Body })
+            <div class="page-content">
+                @await Component.InvokeAsync(Model.Body.ModuleViewComponent, new { data = Model.Body })
+            </div>
             @await Component.InvokeAsync(Model.Footer.ModuleViewComponent, new { data = Model.Footer })
         </main>
         <!-- Footer -->
