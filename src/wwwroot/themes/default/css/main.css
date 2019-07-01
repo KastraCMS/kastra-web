@@ -793,3 +793,45 @@ main .page-content em {
 .cookie-consent .container a {
     color: #1997c6;
 }
+
+/* ---------------------------------------------------
+    PAGINATION
+----------------------------------------------------- */
+
+.pagination {
+    font-size: 2rem;
+    display: flex;
+    justify-content: space-around;
+    padding: 1rem;
+}
+
+/* ---------------------------------------------------
+    ARTICLES
+----------------------------------------------------- */
+
+.article {
+    background-color: #FFF;
+    padding: 1rem 2rem 2rem 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.article p {
+    padding: 0.5rem;
+}
+
+.article footer {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 0.8rem;
+    color: #4d4d4d;
+}
+
+.article .author {
+    margin: 0 1rem;
+}
+
+.article .article-content p {
+    line-height: 2rem;
+    height: 2rem;
+    padding: 0;
+}
