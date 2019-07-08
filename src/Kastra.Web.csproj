@@ -3,15 +3,15 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <SynchReleaseVersion>false</SynchReleaseVersion>
-    <PackageVersion>0.9.15</PackageVersion>
-    <VersionPrefix>0.9.15</VersionPrefix>
-    <ReleaseVersion>0.9.15</ReleaseVersion>
+    <PackageVersion>0.9.16</PackageVersion>
+    <VersionPrefix>0.9.16</VersionPrefix>
+    <ReleaseVersion>0.9.16</ReleaseVersion>
     <MvcRazorCompileOnPublish>false</MvcRazorCompileOnPublish>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.10" />
-    <PackageReference Include="Kastra.Core" Version="0.9.15" />
+    <PackageReference Include="Kastra.Core" Version="0.9.16" />
     <Reference Include="netstandard" />
     <PackageReference Include="Microsoft.Extensions.Logging.Log4Net.AspNetCore" Version="2.2.4" />
   </ItemGroup>
