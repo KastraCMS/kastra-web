@@ -1,0 +1,40 @@
+@using Kastra.Web.Models.Manage;
+@model EditProfileViewModel
+@{
+    Layout = "_StaticLayout";
+    ViewData["Title"] = "Edit profile";
+}
+
+<header class="title">
+    <h2>@ViewData["Title"].</h2>
+</header>
+
+<form asp-controller="Manage" asp-action="EditProfile" method="post" class="form-horizontal">
+    <h4>Edit profile Form</h4>
+    <hr />
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="field">
+        <label asp-for="DisplayedName"></label>
+        <div class="col-md-10">
+            <input asp-for="DisplayedName" />
+            <span asp-validation-for="DisplayedName" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="field">
+        <label asp-for="FirstName"></label>
+        <div class="col-md-10">
+            <input asp-for="FirstName" />
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="field">
+        <label asp-for="LastName"></label>
+        <div class="col-md-10">
+            <input asp-for="LastName"/>
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="actions">
+        <button type="submit" class="button button-primary">Edit</button>
+    </div>
+</form>

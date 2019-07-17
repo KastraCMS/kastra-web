@@ -12,15 +12,21 @@
 <hr />
 <p class="text-success">@ViewData["StatusMessage"]</p>
 <div class="field">
+    <label>Profile :</label>
+    <div class="actions">
+        <a asp-controller="Manage" asp-action="EditProfile" class="button button-primary">Edit</a>
+    </div>
+</div>
+<div class="field">
     <label>Password:</label>
     <div class="actions">
         @if (Model.HasPassword)
         {
-            <a asp-controller="Manage" asp-action="ChangePassword" class="button button-primary">Change</a>
+            <a asp-controller="Manage" asp-action="ChangePassword" class="button button-primary">Change password</a>
         }
         else
         {
-            <a asp-controller="Manage" asp-action="SetPassword" class="button button-primary">Create</a>
+            <a asp-controller="Manage" asp-action="SetPassword" class="button button-primary">Create password</a>
         }
     </div>
 </div>

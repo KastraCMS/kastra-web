@@ -39,6 +39,7 @@ namespace Kastra.Web.Controllers
         {
             ViewData["StatusMessage"] =
                 message == ManageMessageId.ChangePasswordSuccess ? "Your password has been changed."
+                : message == ManageMessageId.EditProfileSuccess ? "Your profile has been saved."
                 : message == ManageMessageId.SetPasswordSuccess ? "Your password has been set."
                 : message == ManageMessageId.Error ? "An error has occurred."
                 : "";
@@ -48,6 +49,50 @@ namespace Kastra.Web.Controllers
             {
                 HasPassword = await _userManager.HasPasswordAsync(user)
             };
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditProfile()
+        {
+            ApplicationUser user = await GetCurrentUserAsync();
+
+            if (user == null)
+            {
+                return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });
+            }
+
+            EditProfileViewModel model = new EditProfileViewModel();
+            model.DisplayedName = user.DisplayedName;
+            model.FirstName = user.FirstName;
+            model.LastName = user.LastName;
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditProfile(EditProfileViewModel model)
+        {
+            ApplicationUser user = await GetCurrentUserAsync();
+
+            if (user == null)
+            {
+                return RedirectToAction(nameof(Index), new { Message = ManageMessageId.Error });
+            }
+
+            user.DisplayedName = model.DisplayedName;
+            user.LastName = model.LastName;
+            user.FirstName = model.FirstName;
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded) 
+            {
+                return RedirectToAction(nameof(Index), new { Message = ManageMessageId.EditProfileSuccess });
+            }
+
+            AddErrors(result);
+            
             return View(model);
         }
 
@@ -135,6 +180,7 @@ namespace Kastra.Web.Controllers
             AddLoginSuccess,
             ChangePasswordSuccess,
             SetTwoFactorSuccess,
+            EditProfileSuccess,
             SetPasswordSuccess,
             RemoveLoginSuccess,
             RemovePhoneSuccess,
