@@ -60,6 +60,11 @@ namespace Kastra.Controllers
         
         public async Task<IActionResult> Login(LoginViewModel model, string returnUrl = null)
         {
+            if (returnUrl == null)
+            {
+                returnUrl = "/page/home";
+            }
+
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
