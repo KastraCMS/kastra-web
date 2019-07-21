@@ -1,6 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -13,22 +11,27 @@ using Kastra.Web.Areas.API.Models.SiteConfiguration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using System.Threading.Tasks;
 
 namespace Kastra.Web.API.Controllers
 {
-	[Area("Api")]
+    [Area("Api")]
     [Authorize("Administration")]
 	public class SiteConfigurationController : Controller
     {
         private readonly CacheEngine _cacheEngine;
 		private readonly IParameterManager _parameterManager;
         private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IEmailSender _emailSender;
 
-        public SiteConfigurationController(CacheEngine cacheEngine, IParameterManager parametermanager, IHostingEnvironment hostingEnvironment)
+        public SiteConfigurationController(CacheEngine cacheEngine, IParameterManager parametermanager, 
+            IHostingEnvironment hostingEnvironment, IEmailSender emailSender)
 		{
             _cacheEngine = cacheEngine;
 			_parameterManager = parametermanager;
             _hostingEnvironment = hostingEnvironment;
+            _emailSender = emailSender;
 		}
 
 		[HttpGet]
@@ -101,6 +104,20 @@ namespace Kastra.Web.API.Controllers
 
             _parameterManager.SaveSiteConfiguration(conf);
             _cacheEngine.ClearAllCache();
+
+            return Ok();
+        }
+
+        /// <summary>
+        /// Send a test email to the user.
+        /// </summary>
+        /// <param name="userManager"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> TestMailAsync([FromServices]UserManager<ApplicationUser> userManager)
+        {
+            ApplicationUser user = await userManager.GetUserAsync(HttpContext.User);
+            _emailSender.SendEmail(user.Email, "Test", "Test message.");
 
             return Ok();
         }
