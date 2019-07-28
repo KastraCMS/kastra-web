@@ -7,15 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using Kastra.Web.Models.Account;
-using Kastra.Web.Controllers;
 using Kastra.Core.Dto;
 using Kastra.Core.Services;
 using Kastra.Core.Business;
-using Kastra.Core.DTO;
 using System;
-using Microsoft.Net.Http.Headers;
-using Microsoft.Extensions.Localization;
 using Kastra.Web.Filters;
+using System.Collections.Generic;
 
 namespace Kastra.Controllers
 {
@@ -28,18 +25,21 @@ namespace Kastra.Controllers
         private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;
         private readonly IStatisticsManager _statisticsManager;
+        private readonly IEmailManager _emailManager;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             ILoggerFactory loggerFactory,
             IStatisticsManager statisticsManager,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IEmailManager emailManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _statisticsManager = statisticsManager;
+            _emailManager = emailManager;
             _logger = loggerFactory.CreateLogger<AccountController>();
         }
 
@@ -117,7 +117,7 @@ namespace Kastra.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser { UserName = model.Email, Email = model.Email, DateCreated = DateTime.Now, DateModified = DateTime.Now };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -125,8 +125,9 @@ namespace Kastra.Controllers
                     // Send an email with this link
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                    await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                        $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+                    Dictionary<string, string> data = new Dictionary<string, string>(1);
+                    data[nameof(callbackUrl)] = callbackUrl;
+                    await _emailManager.SendEmailAsync(model.Email, "account.confirmregistration", data);
 
                     //await _signInManager.SignInAsync(user, isPersistent: false);
                     _logger.LogInformation(3, "User created a new account with password.");
@@ -285,8 +286,12 @@ namespace Kastra.Controllers
                 // Send an email with this link
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                await _emailSender.SendEmailAsync(model.Email, "Reset Password",
-                   $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+                
+                Dictionary<string, string> data = new Dictionary<string, string>(1);
+                data[nameof(callbackUrl)] = callbackUrl;
+        
+                await _emailManager.SendEmailAsync(model.Email, "account.resetpassword", data);
+                
                 return View("ForgotPasswordConfirmation");
             }
 
