@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System;
 
 namespace Kastra.Web.API.Controllers
 {
@@ -24,14 +26,16 @@ namespace Kastra.Web.API.Controllers
 		private readonly IParameterManager _parameterManager;
         private readonly IHostingEnvironment _hostingEnvironment;
         private readonly IEmailSender _emailSender;
+        private readonly IEmailManager _emailManager;
 
         public SiteConfigurationController(CacheEngine cacheEngine, IParameterManager parametermanager, 
-            IHostingEnvironment hostingEnvironment, IEmailSender emailSender)
+            IHostingEnvironment hostingEnvironment, IEmailSender emailSender, IEmailManager emailManager)
 		{
             _cacheEngine = cacheEngine;
 			_parameterManager = parametermanager;
             _hostingEnvironment = hostingEnvironment;
             _emailSender = emailSender;
+            _emailManager = emailManager;
 		}
 
 		[HttpGet]
@@ -106,6 +110,45 @@ namespace Kastra.Web.API.Controllers
             _cacheEngine.ClearAllCache();
 
             return Ok();
+        }
+
+        /// <summary>
+        /// Get the mail templates.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult GetMailTemplateList()
+        {
+            IList<MailTemplateModel> mailTemplates = _emailManager.GetMailTemplates()?.Select(mt => new MailTemplateModel() {
+                Id = mt.MailtemplateId,
+                Keyname = mt.Keyname,
+                Subject = mt.Subject,
+                Message = mt.Message
+            })?.ToList();
+
+            return Ok(mailTemplates);
+        }
+
+        [HttpPost]
+        public IActionResult SaveMailTemplate([FromBody] MailTemplateModel model)
+        {
+            if (string.IsNullOrEmpty(model.Keyname))
+            {
+                throw new ArgumentNullException(nameof(model.Keyname));
+            }
+
+            MailTemplateInfo mailTemplate = _emailManager.GetMailTemplate(model.Keyname);
+
+            if (mailTemplate != null)
+            {
+                mailTemplate.Subject = model.Subject;
+                mailTemplate.Message = model.Message;
+                _emailManager.UpdateMailTemplate(mailTemplate);
+
+                return Ok();
+            }
+
+            return BadRequest("The mail template was not updated");
         }
 
         /// <summary>

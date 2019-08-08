@@ -22,7 +22,6 @@ namespace Kastra.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;
         private readonly IStatisticsManager _statisticsManager;
         private readonly IEmailManager _emailManager;
@@ -37,7 +36,6 @@ namespace Kastra.Controllers
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _emailSender = emailSender;
             _statisticsManager = statisticsManager;
             _emailManager = emailManager;
             _logger = loggerFactory.CreateLogger<AccountController>();
