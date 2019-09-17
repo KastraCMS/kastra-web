@@ -24,12 +24,18 @@ namespace Kastra.Web.Areas.API.Controllers
         [HttpGet]
         public IActionResult List()
         {
-            IList<ModuleInfo> modules = _viewManager.GetModulesList();
+            ModuleModel model = null;
+            IList<ModuleInfo> modules = _viewManager.GetModulesList(true);
             List<ModuleModel> moduleModels = new List<ModuleModel>(modules.Count);
+            Dictionary<int, string> pages = _viewManager.GetPagesList().ToDictionary(x => x.PageId, y => y.Title);
+            Dictionary<int, string> places = _viewManager.GetPlacesList().ToDictionary(x => x.PlaceId, y => y.KeyName);
 
             foreach (ModuleInfo module in modules)
             {
-                moduleModels.Add(ToModuleModel(module));
+                model = ToModuleModel(module);
+                model.PageName = pages[module.PageId];
+                model.PlaceName = places[module.PlaceId];
+                moduleModels.Add(model);
             }
 
             return Json(moduleModels);
@@ -140,6 +146,7 @@ namespace Kastra.Web.Areas.API.Controllers
             model.PageId = moduleInfo.PageId;
             model.PlaceId = moduleInfo.PlaceId;
             model.DefinitionId = moduleInfo.ModuleDefId;
+            model.DefinitionName = moduleInfo?.ModuleDefinition?.Name;
 			model.Permissions = moduleInfo.ModulePermissions.Select(p => p.PermissionId).ToArray();
             model.IsStatic = moduleInfo?.Place?.ModuleId != null;
             model.IsDisabled = moduleInfo.IsDisabled;
