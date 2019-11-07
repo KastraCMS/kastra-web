@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using Kastra.Core;
 using Kastra.Core.Business;
+using Kastra.Core.Constants;
 using Kastra.Core.Dto;
 using Kastra.Core.Services;
 using Kastra.Web.Admin.Models.Module;
@@ -33,7 +33,7 @@ namespace Kastra.Web.Admin.Controllers
             PageInfo page = null;
             SettingsModel model = new SettingsModel();
             ViewEngine viewEngine = null;
-
+            
             // Get module
             ModuleInfo module = _viewManager.GetModule(moduleId, true, true);
 
@@ -49,7 +49,7 @@ namespace Kastra.Web.Admin.Controllers
             viewEngine = new ViewEngine(_cacheEngine);
             model.ModuleSettingsView = viewEngine.GetModuleDataByModuleId(page, module, moduleControl, moduleAction);
             model.ModuleSettingsView.RequiredClaims = new List<PermissionInfo>();
-            model.ModuleSettingsView.RequiredClaims.Add(new PermissionInfo { Name = Constants.ModuleConfig.GrantedAccessPermission });
+            model.ModuleSettingsView.RequiredClaims.Add(new PermissionInfo { Name = ModuleConfiguration.GrantedAccessPermission });
 
             return View(model);
         }

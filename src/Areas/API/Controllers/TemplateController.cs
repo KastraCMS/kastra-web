@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Kastra.Core;
 using Kastra.Core.Business;
+using Kastra.Core.Configuration;
 using Kastra.Core.Dto;
 using Kastra.Web.API.Models.Template;
 using Microsoft.AspNetCore.Authorization;
@@ -17,7 +17,6 @@ namespace Kastra.Web.Areas.API.Controllers
 	public class TemplateController : Controller
     {
         private readonly IViewManager _viewManager;
-        private readonly string[] _excludedFolders = new string[] { "Shared", "Install", "Account", "Manage" };
 
 		public TemplateController(IViewManager viewManager)
         {
@@ -142,7 +141,7 @@ namespace Kastra.Web.Areas.API.Controllers
         /// <returns></returns>
         public IList<TypeInfo> GetControllerTypes()
         {
-            Type templateType = typeof(Kastra.Core.Controllers.TemplateController);
+            Type templateType = typeof(Kastra.Core.Templates.Controllers.TemplateController);
             IList<TypeInfo> types = new List<TypeInfo>();
 
             foreach(Assembly assembly in KastraAssembliesContext.Instance.Assemblies.Values)

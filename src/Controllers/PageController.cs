@@ -1,6 +1,6 @@
 ﻿using Kastra.Core.Business;
-using Kastra.Core.Controllers;
 using Kastra.Core.Services;
+using Kastra.Core.Templates.Controllers;
 using Kastra.Web.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
@@ -15,6 +15,11 @@ namespace Kastra.Web.Controllers
                               IViewComponentDescriptorCollectionProvider viewcomponents, 
                               IParameterManager parameterManager) 
                             : base(viewManager, cacheEngine, viewcomponents, parameterManager){}
+
+        public IActionResult Home()
+        {
+            return Index("Home", 0, string.Empty, string.Empty);
+        }
 
         public IActionResult Error()
         {

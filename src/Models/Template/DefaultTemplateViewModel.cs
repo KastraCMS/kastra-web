@@ -1,4 +1,4 @@
-﻿using Kastra.Core.ViewComponents;
+﻿using Kastra.Core.Modules;
 
 namespace Kastra.Web.Models.Template
 {

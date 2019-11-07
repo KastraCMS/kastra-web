@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Kastra.Core;
 using Kastra.Core.Business;
+using Kastra.Core.Constants;
 using Kastra.Core.Dto;
 using Kastra.Web.API.Models.Role;
 using Microsoft.AspNetCore.Authorization;
@@ -58,9 +57,9 @@ namespace Kastra.Web.API.Controllers
             role.Name = model.Name;
 
             // Save permissions
-            IdentityRoleClaim<String> currentPermission = null;
+            IdentityRoleClaim<string> currentPermission = null;
             IList<PermissionInfo> permissions = _securityManager.GetPermissionsList();
-            IList<IdentityRoleClaim<String>> currentPermissions = role.Claims.ToList();
+            IList<IdentityRoleClaim<string>> currentPermissions = role.Claims.ToList();
 
             if (createMode)
             {
@@ -73,7 +72,7 @@ namespace Kastra.Web.API.Controllers
 
             foreach (PermissionInfo permission in permissions)
             {
-                currentPermission = currentPermissions.SingleOrDefault(c => c.ClaimType == Constants.ModuleConfig.ModulePermissionType && c.ClaimValue == permission.PermissionId.ToString());
+                currentPermission = currentPermissions.SingleOrDefault(c => c.ClaimType == ModuleConfiguration.ModulePermissionType && c.ClaimValue == permission.PermissionId.ToString());
 
                 if (currentPermission != null)
                 {
@@ -86,8 +85,8 @@ namespace Kastra.Web.API.Controllers
                 {
                     if (model.Permissions.Any(sp => sp == permission.PermissionId))
                     {
-                        currentPermission = new IdentityRoleClaim<String>();
-                        currentPermission.ClaimType = Constants.ModuleConfig.ModulePermissionType;
+                        currentPermission = new IdentityRoleClaim<string>();
+                        currentPermission.ClaimType = ModuleConfiguration.ModulePermissionType;
                         currentPermission.ClaimValue = permission.PermissionId.ToString();
                         currentPermission.RoleId = role.Id;
 
@@ -144,7 +143,7 @@ namespace Kastra.Web.API.Controllers
 
 			foreach(var claim in roleInfo.Claims)
 			{
-				if(claim.ClaimType == Constants.ModuleConfig.ModulePermissionType && Int32.TryParse(claim.ClaimValue, out permissionId))
+				if(claim.ClaimType == ModuleConfiguration.ModulePermissionType && int.TryParse(claim.ClaimValue, out permissionId))
 				{
 					model.Permissions.Add(permissionId);
 				}

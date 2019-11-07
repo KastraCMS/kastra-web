@@ -1,10 +1,12 @@
 ﻿using System;
-using System.Data.SqlClient;
 using System.Reflection;
 using System.Threading.Tasks;
 using Kastra.Core;
 using Kastra.Core.Business;
+using Kastra.Core.Configuration;
+using Kastra.Core.Constants;
 using Kastra.Core.Dto;
+using Kastra.Core.Modules;
 using Kastra.Core.Services;
 using Kastra.Web.Identity;
 using Kastra.Web.Middlewares;
@@ -15,11 +17,16 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using Environments = Microsoft.Extensions.Hosting.Environments;
 
 namespace Kastra.Web
 {
@@ -48,6 +55,23 @@ namespace Kastra.Web
             _isInstalled = !String.IsNullOrEmpty(connectionString) && HasTables(connectionString);
 
             #endregion
+
+            // Logging
+            services.AddLogging(config =>
+            {
+                // clear out default configuration
+                config.ClearProviders();
+
+                config.AddConfiguration(Configuration.GetSection("Logging"));
+                config.AddDebug();
+                config.AddEventSourceLogger();
+
+                // Add console only for development
+                if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == Environments.Development)
+                {
+                    config.AddConsole();
+                }
+            });
 
             if (!String.IsNullOrEmpty(connectionString))
             {
@@ -114,8 +138,12 @@ namespace Kastra.Web
             });
             services.AddTransient(typeof(IStringLocalizer<>), typeof(JsonStringLocalizer<>));
 
+            // Add module view engine
+            services.TryAddSingleton<IRazorViewEngine, ModuleViewEngine>();
+
             // Add Mvc
-            var mvcBuilder = services.AddMvc();
+            var mvcBuilder = services.AddControllersWithViews().AddRazorRuntimeCompilation();
+            mvcBuilder.AddKastraModule();
             mvcBuilder.AddApplicationParts();
 
             // Add authorizations
@@ -151,16 +179,15 @@ namespace Kastra.Web
 			}
         }
         
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IServiceProvider serviceProvider)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, IServiceProvider serviceProvider)
         {
 			AppSettings appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
             
             // Add log4net logs
-            loggerFactory.AddLog4Net("log4net.config", Configuration.GetSection("Log4net"));
+            loggerFactory.AddLog4Net("log4net.config"); //, Configuration.GetSection("Log4net")
 
             if (env.IsDevelopment())
             {
-                loggerFactory.AddDebug();
                 app.UseDeveloperExceptionPage();
             }
             else
@@ -174,28 +201,14 @@ namespace Kastra.Web
                 UpdateDatabase(app);
             }
 
-            app.UseBrowserLink();
+            // Routing
+            app.UseRouting();
 
-            app.UseStaticFiles();
-
-            if(_isInstalled)
+            // Cors
+            if (appSettings.Cors.EnableCors)
             {
-                IViewManager viewManager = serviceProvider.GetService<IViewManager>() as IViewManager;
-                app.UseModuleStaticFiles(
-                    viewManager, 
-                    appSettings.Configuration.ModuleDirectoryPath,
-                    Constants.SiteConfig.DefaultModuleResourcesPath);
+                app.UseCors("CorsPolicy");
             }
-
-			if(appSettings.Cors.EnableCors)
-			{
-				app.UseCors("CorsPolicy");
-			}
-
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
-            {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-            });
 
             if (appSettings.Configuration.DevelopmentMode)
             {
@@ -214,6 +227,25 @@ namespace Kastra.Web
             }
 
             app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseStatusCodePages();
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+
+            if (_isInstalled)
+            {
+                IViewManager viewManager = serviceProvider.GetService<IViewManager>() as IViewManager;
+                app.UseModuleStaticFiles(
+                    viewManager, 
+                    appSettings.Configuration.ModuleDirectoryPath,
+                    SiteConfiguration.DefaultModuleResourcesPath);
+            }
+
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
 
             // Count visits
             if(_isInstalled)
@@ -227,18 +259,18 @@ namespace Kastra.Web
                 app.UseMiddleware<AntiForgeryTokenMiddleware>();
             }
 
-            app.UseMvc(routes =>
+            app.UseEndpoints(endpoints =>
             {
-				routes.MapRoute(name: "areaRoute",
-				                template: "{area:exists}/{controller}/{action}/{id?}",
+                endpoints.MapControllerRoute(name: "areaRoute",
+                                pattern: "{area:exists}/{controller}/{action}/{id?}",
                                 defaults: new { controller = "Page", action = "Home" });
-				
-                routes.AddDefaultRoutes("Page", "Admin/Module");
 
-				routes.MapRoute(name: "adminRoute",
-				                template: "{area:exists}/{*catchall}",
-				                defaults: new { controller = "Home", action = "Index" });
-            });  
+                endpoints.MapControllerRoute(name: "adminRoute",
+                                pattern: "{area:exists}/{*catchall}",
+                                defaults: new { controller = "Home", action = "Index" });
+
+                endpoints.AddDefaultEndpoints("Page", "Admin/Module");
+            });
         }
 
         /// <summary>

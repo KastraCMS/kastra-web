@@ -1,17 +1,17 @@
 ﻿using System;
-using System.Data.SqlClient;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Kastra.Core.Business;
 using Kastra.Core.Dto;
 using Kastra.Web.Identity;
 using Kastra.Web.Models.Install;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace Kastra.Controllers
 {
@@ -44,7 +44,7 @@ namespace Kastra.Controllers
 
         [HttpPost]
         
-        public IActionResult Database([FromBody] DatabaseViewModel databaseForm, [FromServices] IApplicationLifetime applicationLifetime)
+        public IActionResult Database([FromBody] DatabaseViewModel databaseForm, [FromServices] IHostApplicationLifetime applicationLifetime)
         {
             string connectionString = _configuration.GetConnectionString("DefaultConnection");
 
@@ -216,10 +216,10 @@ namespace Kastra.Controllers
         {
             String json = System.IO.File.ReadAllText(@"appsettings.json");
 
-            dynamic dynamicObject = JsonConvert.DeserializeObject<dynamic>(json);
+            dynamic dynamicObject = JsonSerializer.Deserialize<dynamic>(json);
             dynamicObject.ConnectionStrings.DefaultConnection = connectionString;
 
-            String output = JsonConvert.SerializeObject(dynamicObject);
+            string output = JsonSerializer.Serialize(dynamicObject);
 
             System.IO.File.WriteAllText(@"appsettings.json", output);
         }

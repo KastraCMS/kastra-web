@@ -2,25 +2,28 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
 
-public class AntiForgeryTokenMiddleware
+namespace Kastra.Web.Middlewares
 {
-    private readonly RequestDelegate _next;
-    private readonly IAntiforgery _antiforgery;
-
-    public AntiForgeryTokenMiddleware(RequestDelegate next, IAntiforgery antiforgery)
+    public class AntiForgeryTokenMiddleware
     {
-        _next = next;
-        _antiforgery = antiforgery;
-    }
+        private readonly RequestDelegate _next;
+        private readonly IAntiforgery _antiforgery;
 
-    public async Task Invoke(HttpContext context)
-    {
-        // Apply antiforgery check for all POST requests
-        if (HttpMethods.IsPost(context.Request.Method))
+        public AntiForgeryTokenMiddleware(RequestDelegate next, IAntiforgery antiforgery)
         {
-            await _antiforgery.ValidateRequestAsync(context);
+            _next = next;
+            _antiforgery = antiforgery;
         }
 
-        await _next(context);
+        public async Task Invoke(HttpContext context)
+        {
+            // Apply antiforgery check for all POST requests
+            if (HttpMethods.IsPost(context.Request.Method))
+            {
+                await _antiforgery.ValidateRequestAsync(context);
+            }
+
+            await _next(context);
+        }
     }
 }

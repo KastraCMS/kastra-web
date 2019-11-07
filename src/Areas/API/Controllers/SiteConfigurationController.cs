@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using Kastra.Core;
 using Kastra.Core.Business;
 using Kastra.Core.Dto;
 using Kastra.Core.Services;
@@ -15,6 +14,9 @@ using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System;
+using Microsoft.Extensions.Hosting;
+using Kastra.Core.Configuration;
+using Kastra.Core.Constants;
 
 namespace Kastra.Web.API.Controllers
 {
@@ -24,12 +26,12 @@ namespace Kastra.Web.API.Controllers
     {
         private readonly CacheEngine _cacheEngine;
 		private readonly IParameterManager _parameterManager;
-        private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IWebHostEnvironment _hostingEnvironment;
         private readonly IEmailSender _emailSender;
         private readonly IEmailManager _emailManager;
 
-        public SiteConfigurationController(CacheEngine cacheEngine, IParameterManager parametermanager, 
-            IHostingEnvironment hostingEnvironment, IEmailSender emailSender, IEmailManager emailManager)
+        public SiteConfigurationController(CacheEngine cacheEngine, IParameterManager parametermanager,
+            IWebHostEnvironment hostingEnvironment, IEmailSender emailSender, IEmailManager emailManager)
 		{
             _cacheEngine = cacheEngine;
 			_parameterManager = parametermanager;
@@ -66,7 +68,7 @@ namespace Kastra.Web.API.Controllers
             model.EmailSender = configuration.EmailSender;
             model.RequireConfirmedEmail = configuration.RequireConfirmedEmail;
             model.Theme = configuration.Theme;
-            model.ThemeList = themes?.Select(t => t.Name)?.OrderBy(t => t)?.ToArray() ?? new string[] { Constants.SiteConfig.DefaultTheme };
+            model.ThemeList = themes?.Select(t => t.Name)?.OrderBy(t => t)?.ToArray() ?? new string[] { SiteConfiguration.DefaultTheme };
             model.CookieUsePolicyUrl = configuration.CookieUsePolicyUrl;
             model.ConsentNotice = configuration.ConsentNotice;
             model.CheckConsentNeeded = configuration.CheckConsentNeeded;
@@ -171,7 +173,7 @@ namespace Kastra.Web.API.Controllers
         /// <returns></returns>
         /// <param name="applicationLifetime">Application lifetime.</param>
         [HttpGet]
-        public IActionResult Restart([FromServices] IApplicationLifetime applicationLifetime)
+        public IActionResult Restart([FromServices] IHostApplicationLifetime applicationLifetime)
         {
             applicationLifetime.StopApplication();
 
