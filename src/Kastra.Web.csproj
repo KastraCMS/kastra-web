@@ -3,9 +3,9 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <SynchReleaseVersion>false</SynchReleaseVersion>
-    <PackageVersion>0.9.28</PackageVersion>
-    <VersionPrefix>0.9.28</VersionPrefix>
-    <ReleaseVersion>0.9.28</ReleaseVersion>
+    <PackageVersion>0.9.29</PackageVersion>
+    <VersionPrefix>0.9.29</VersionPrefix>
+    <ReleaseVersion>0.9.29</ReleaseVersion>
     <CopyRazorGenerateFilesToPublishDirectory>true</CopyRazorGenerateFilesToPublishDirectory>
   </PropertyGroup>
   <ItemGroup>
@@ -17,7 +17,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.0.0" />
-    <PackageReference Include="Kastra.Core" Version="0.9.28" />
+    <PackageReference Include="Kastra.Core" Version="0.9.29" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools">
