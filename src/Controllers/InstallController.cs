@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Kastra.Core.Business;
 using Kastra.Core.Dto;
@@ -12,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Kastra.Controllers
 {
@@ -36,7 +36,7 @@ namespace Kastra.Controllers
 
             string connectionString = _configuration.GetConnectionString("DefaultConnection");
 
-            if (String.IsNullOrEmpty(connectionString) || !DatabaseExists(connectionString, true))
+            if (string.IsNullOrEmpty(connectionString) || !DatabaseExists(connectionString, true))
                 return View();
 
             return Redirect("page/home");
@@ -48,7 +48,7 @@ namespace Kastra.Controllers
         {
             string connectionString = _configuration.GetConnectionString("DefaultConnection");
 
-            if (!String.IsNullOrEmpty(connectionString) || DatabaseExists(connectionString))
+            if (!string.IsNullOrEmpty(connectionString) || DatabaseExists(connectionString))
                 return BadRequest();
 
             // Create connexion string
@@ -82,7 +82,7 @@ namespace Kastra.Controllers
             {
                 string connectionString = _configuration.GetConnectionString("DefaultConnection");
 
-                if (String.IsNullOrEmpty(connectionString) || DatabaseExists(connectionString, true))
+                if (string.IsNullOrEmpty(connectionString) || DatabaseExists(connectionString, true))
                     return BadRequest();
 
                 try
@@ -102,7 +102,7 @@ namespace Kastra.Controllers
                     role.Name = "Administrator";
                     await roleManager.CreateAsync(role);
 
-                    IdentityRoleClaim<String> roleClaim = new IdentityRoleClaim<String>();
+                    IdentityRoleClaim<string> roleClaim = new IdentityRoleClaim<string>();
                     roleClaim.ClaimType = "GlobalSettingsEdition";
                     roleClaim.ClaimValue = "GlobalSettingsEdition";
                     roleClaim.RoleId = role.Id;
@@ -138,7 +138,7 @@ namespace Kastra.Controllers
         [HttpGet]
         public IActionResult CheckDatabase()
         {
-            String connectionString = _configuration.GetConnectionString("DefaultConnection");
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
 
             try
             {
@@ -156,7 +156,7 @@ namespace Kastra.Controllers
         [HttpGet]
         public IActionResult CheckDatabaseTables()
         {
-            String connectionString = _configuration.GetConnectionString("DefaultConnection");
+            string connectionString = _configuration.GetConnectionString("DefaultConnection");
 
             try
             {
@@ -181,11 +181,11 @@ namespace Kastra.Controllers
             }
         }
 
-        private Boolean DatabaseExists(String connectionString, Boolean checkTables = false)
+        private bool DatabaseExists(string connectionString, bool checkTables = false)
         {
             int numberTables = 0;
 
-            if (String.IsNullOrEmpty(connectionString))
+            if (string.IsNullOrEmpty(connectionString))
                 return false;
 
             string queryString = "SELECT Count(*) from sys.tables where name like 'Kastra%'";
@@ -195,7 +195,9 @@ namespace Kastra.Controllers
                 connection.Open();
 
                 if (!checkTables)
+                {
                     return true;
+                }
 
                 SqlCommand command = new SqlCommand(queryString, connection);
                 numberTables = (int)command.ExecuteScalar();
@@ -204,22 +206,26 @@ namespace Kastra.Controllers
             return (numberTables > 0);
         }
 
-        private String GenerateConnectionString(String server, String databaseName, String login, String password, Boolean integratedSecurity)
+        private string GenerateConnectionString(string server, string databaseName, string login, string password, bool integratedSecurity)
         {
             if (integratedSecurity)
+            {
                 return $"Server={server};Database={databaseName};Integrated Security=True;";
+            }
             else
+            {
                 return $"Server={server};Database={databaseName};Integrated Security=False;User Id={login};Password={password};";
+            }
         }
 
-        private void SaveConnectionString(String connectionString)
+        private void SaveConnectionString(string connectionString)
         {
-            String json = System.IO.File.ReadAllText(@"appsettings.json");
+            string json = System.IO.File.ReadAllText(@"appsettings.json");
 
-            dynamic dynamicObject = JsonSerializer.Deserialize<dynamic>(json);
+            dynamic dynamicObject = JsonConvert.DeserializeObject<dynamic>(json);
             dynamicObject.ConnectionStrings.DefaultConnection = connectionString;
 
-            string output = JsonSerializer.Serialize(dynamicObject);
+            string output = JsonConvert.SerializeObject(dynamicObject);
 
             System.IO.File.WriteAllText(@"appsettings.json", output);
         }
