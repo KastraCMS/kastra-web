@@ -1,4 +1,4 @@
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions{
     public string GetAntiXsrfRequestToken()
     {
@@ -14,10 +14,11 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="~/themes/default/css/reset.css" />
-    <link rel="stylesheet" href="~/themes/default/css/main.css" />
+    <link rel="stylesheet" href="~/css/kastra.setup.css" />
 </head>
 <body>
     <div class="o-page-content o-main-container">
+        <input type="hidden" id="RequestVerificationToken" name="RequestVerificationToken" value="@GetAntiXsrfRequestToken()">
         <!-- Slider -->
         <div class="o-header-container">
             <header class="o-header">
@@ -38,6 +39,6 @@
             </footer>
         </div>
     </div>
-    <script src="./js/kastra.setup.js"></script>
+    <script src="~/js/kastra.setup.js"></script>
 </body>
 </html>
