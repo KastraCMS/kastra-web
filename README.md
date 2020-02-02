@@ -4,7 +4,7 @@
 
 ## Minimum requirements
 
-* .NET Core Runtime 2.1.11
+* .NET Core Runtime 3.1
 * SQL Server Database 2008 or higher
 * IIS or Nginx or Apache server
 
