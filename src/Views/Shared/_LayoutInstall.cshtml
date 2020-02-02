@@ -17,28 +17,25 @@
     <link rel="stylesheet" href="~/themes/default/css/main.css" />
 </head>
 <body>
-    <!-- Header -->
-    <div id="page-content" class="main-container">
-        <input type="hidden" id="RequestVerificationToken" name="RequestVerificationToken" value="@GetAntiXsrfRequestToken()">
+    <div class="o-page-content o-main-container">
         <!-- Slider -->
-        <div class="header-container">
-            <header id="header">
+        <div class="o-header-container">
+            <header class="o-header">
                 <h1>Kastra</h1>
                 <p>AN OPEN, FREE AND CROSS-PLATFORM CMS</p>
             </header>
         </div>
-        <div class="content-container">
-            <div class="content">
-                <!-- Content -->
-                @RenderBody()
-            </div>
+        <div class="o-content-container">
+            <!-- Content -->
+            <div class="o-content"></div>
             <!-- Footer -->
-            <footer id="footer">
+            <footer class="o-footer">
                 <div class="copyright">
-                    &copy; 2017 - 2019 Kastra. All rights reserved.
+                    &copy; 2017 - 2020 Kastra. All rights reserved.
                 </div>
             </footer>
         </div>
     </div>
+    <script src="./js/kastra.setup.js"></script>
 </body>
 </html>
