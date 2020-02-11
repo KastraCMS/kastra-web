@@ -143,14 +143,16 @@ namespace Kastra.Controllers
             try
             {
                 if (DatabaseExists(connectionString))
-                    return Ok();
+                {
+                    return Ok(true);
+                }
             }
             catch(Exception ex)
             {
                 return BadRequest(ex.Message);   
             }
 
-            return NotFound();
+            return Ok(false);
         }
 
         [HttpGet]
@@ -161,14 +163,16 @@ namespace Kastra.Controllers
             try
             {
                 if (DatabaseExists(connectionString, true))
-                    return Ok();
+                {
+                    return Ok(true);
+                }
             }
             catch(Exception ex)
             {
                 return BadRequest(ex.Message);   
             }
 
-            return NotFound();
+            return Ok(false);
         }
 
         #region Helpers
