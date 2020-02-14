@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Kastra.Core.Business;
 using Kastra.Core.Dto;
@@ -76,14 +77,26 @@ namespace Kastra.Controllers
         
         public async Task<IActionResult> Account([FromBody] AccountViewModel model, [FromServices] ApplicationDbContext applicationDbContext,
                 [FromServices] IApplicationManager applicationManager, [FromServices] IModuleManager moduleManager,
-                [FromServices] UserManager<ApplicationUser> userManager, [FromServices] RoleManager<ApplicationRole> roleManager, [FromServices] SignInManager<ApplicationUser> signInManager)
+                [FromServices] UserManager<ApplicationUser> userManager, [FromServices] RoleManager<ApplicationRole> roleManager)
         {
             if (ModelState.IsValid)
             {
+                ApplicationUser user = new ApplicationUser { UserName = model.Email, Email = model.Email, EmailConfirmed = true };
+
+                // Check password
+                List<string> passwordErrors = await GetPasswordErrors(userManager, model.Password);
+
+                if (passwordErrors.Count > 0)
+                {
+                    return BadRequest(passwordErrors);
+                }
+
                 string connectionString = _configuration.GetConnectionString("DefaultConnection");
 
                 if (string.IsNullOrEmpty(connectionString) || DatabaseExists(connectionString, true))
+                {
                     return BadRequest();
+                }
 
                 try
                 {
@@ -91,11 +104,12 @@ namespace Kastra.Controllers
                     applicationDbContext.Database.Migrate();
 
                     // Create host user
-                    ApplicationUser user = new ApplicationUser { UserName = model.Email, Email = model.Email, EmailConfirmed = true };
                     IdentityResult result = await userManager.CreateAsync(user, model.Password);
 
                     if (!result.Succeeded)
+                    {
                         return BadRequest(result.Errors);
+                    }
 
                     // Install roles
                     ApplicationRole role = new ApplicationRole();
@@ -128,6 +142,7 @@ namespace Kastra.Controllers
                 }
                 catch(Exception ex)
                 {
+                    _logger.LogError(0, ex, null);
                     return BadRequest(ex.Message);
                 }
             }
@@ -232,6 +247,58 @@ namespace Kastra.Controllers
             string output = JsonConvert.SerializeObject(dynamicObject);
 
             System.IO.File.WriteAllText(@"appsettings.json", output);
+        }
+
+        private async Task<List<string>> GetPasswordErrors(UserManager<ApplicationUser> userManager, string password)
+        {
+            List<string> errors = new List<string>();
+            IList<IPasswordValidator<ApplicationUser>> validators = userManager.PasswordValidators;
+
+            if (validators is null)
+            {
+                return errors;
+            }
+
+            foreach (IPasswordValidator<ApplicationUser> validator in validators)
+            {
+                IdentityResult result = await validator.ValidateAsync(userManager, null, password);
+
+                if (!result.Succeeded)
+                {
+                    foreach (IdentityError error in result.Errors)
+                    {
+                        errors.Add(error.Description);
+                    }
+                }
+            }
+
+            return errors;
+        }
+
+        private async Task<List<string>> GetUserErrors(UserManager<ApplicationUser> userManager, ApplicationUser user)
+        {
+            List<string> errors = new List<string>();
+            IList<IUserValidator<ApplicationUser>> validators = userManager.UserValidators;
+
+            if (validators is null)
+            {
+                return errors;
+            }
+
+            foreach (IUserValidator<ApplicationUser> validator in validators)
+            {
+                IdentityResult result = await validator.ValidateAsync(userManager, user);
+
+                if (!result.Succeeded)
+                {
+                    foreach (IdentityError error in result.Errors)
+                    {
+                        errors.Add(error.Description);
+                    }
+                }
+            }
+
+            return errors;
         }
 
         #endregion
