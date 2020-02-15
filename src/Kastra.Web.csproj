@@ -3,9 +3,9 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <SynchReleaseVersion>false</SynchReleaseVersion>
-    <PackageVersion>0.9.29</PackageVersion>
-    <VersionPrefix>0.9.29</VersionPrefix>
-    <ReleaseVersion>0.9.29</ReleaseVersion>
+    <PackageVersion>0.9.31</PackageVersion>
+    <VersionPrefix>0.9.31</VersionPrefix>
+    <ReleaseVersion>0.9.31</ReleaseVersion>
     <CopyRazorGenerateFilesToPublishDirectory>true</CopyRazorGenerateFilesToPublishDirectory>
   </PropertyGroup>
   <ItemGroup>
@@ -20,7 +20,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.1" />
-    <PackageReference Include="Kastra.Core" Version="0.9.30" />
+    <PackageReference Include="Kastra.Core" Version="0.9.31" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools">
@@ -29,11 +29,11 @@
   </ItemGroup>
     <PropertyGroup>
       <DefaultItemExcludes>$(DefaultItemExcludes);Modules\**</DefaultItemExcludes>
-      <Version>0.9.30</Version>
+      <Version>0.9.31</Version>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(RunConfiguration)' == 'Custom' ">
       <StartAction>Project</StartAction>
-      <ApplicationURL>https://localhost:5001;http://localhost:5000</ApplicationURL>
+      <ApplicationURL>http://localhost:5002</ApplicationURL>
     </PropertyGroup>
   <ItemGroup>
     <Folder Include="Identity\" />
@@ -67,11 +67,5 @@
     <Folder Include="Areas\Admin\Models\Module\" />
     <Folder Include="Areas\API\Models\Statistics\" />
     <Folder Include="Middlewares\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Remove="DefaultViewComponent.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Remove="kastra.web.log" />
   </ItemGroup>
 </Project>
