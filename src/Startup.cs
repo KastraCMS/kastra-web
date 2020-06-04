@@ -40,7 +40,7 @@ namespace Kastra.Web
         {
             Configuration = configuration;
         }
-        
+
         public void ConfigureServices(IServiceCollection services)
         {
             // Add options
@@ -48,7 +48,7 @@ namespace Kastra.Web
 
             AppSettings appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
             services.Configure<AppSettings>(Configuration);
-            
+
             #region Check database
 
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
@@ -83,14 +83,14 @@ namespace Kastra.Web
                     .AddEntityFrameworkStores<ApplicationDbContext>()
                     .AddDefaultTokenProviders();
 
-				services.ConfigureApplicationCookie(options =>
+                services.ConfigureApplicationCookie(options =>
                 {
                     if (appSettings.Configuration.DevelopmentMode)
                     {
                         options.Cookie.SecurePolicy = CookieSecurePolicy.None;
                         options.Cookie.SameSite = SameSiteMode.None;
                     }
-					options.Events =
+                    options.Events =
                         new CookieAuthenticationEvents
                         {
                             OnRedirectToLogin = ctx =>
@@ -112,7 +112,7 @@ namespace Kastra.Web
             DirectoryAssemblyLoader.LoadAllAssemblies(appSettings);
             int assembliesLength = KastraAssembliesContext.Instance.Assemblies.Count;
 
-            if(assembliesLength > 0 && !String.IsNullOrEmpty(connectionString))
+            if (assembliesLength > 0 && !String.IsNullOrEmpty(connectionString))
             {
                 Assembly[] assemblies = new Assembly[assembliesLength];
                 KastraAssembliesContext.Instance.Assemblies.Values.CopyTo(assemblies, 0);
@@ -126,7 +126,7 @@ namespace Kastra.Web
             services.AddMemoryCache();
 
             // Configure Kastra options with site configuration
-            if(_isInstalled)
+            if (_isInstalled)
             {
                 services.ConfigureKastraOptions();
             }
@@ -155,34 +155,34 @@ namespace Kastra.Web
             // Add gzip compression
             services.AddResponseCompression();
 
-			// Add CORS
-			if(appSettings.Cors.EnableCors)
-			{
-				CorsPolicyBuilder corsBuilder = new CorsPolicyBuilder();
+            // Add CORS
+            if (appSettings.Cors.EnableCors)
+            {
+                CorsPolicyBuilder corsBuilder = new CorsPolicyBuilder();
                 corsBuilder.AllowAnyHeader();
                 corsBuilder.AllowAnyMethod();
                 corsBuilder.AllowCredentials();
 
-				if (appSettings.Cors.AllowAnyOrigin)
+                if (appSettings.Cors.AllowAnyOrigin)
                 {
-					corsBuilder.AllowAnyOrigin();
+                    corsBuilder.AllowAnyOrigin();
                 }
-				else if (!String.IsNullOrEmpty(appSettings.Cors.Origins))
+                else if (!String.IsNullOrEmpty(appSettings.Cors.Origins))
                 {
-					corsBuilder.WithOrigins(appSettings.Cors.Origins.Split(','));
+                    corsBuilder.WithOrigins(appSettings.Cors.Origins.Split(','));
                 }
 
-				services.AddCors(options =>
+                services.AddCors(options =>
                 {
                     options.AddPolicy("CorsPolicy", corsBuilder.Build());
-                });  
-			}
+                });
+            }
         }
-        
+
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, IServiceProvider serviceProvider)
         {
-			AppSettings appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
-            
+            AppSettings appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
+
             // Add log4net logs
             loggerFactory.AddLog4Net("log4net.config"); //, Configuration.GetSection("Log4net")
 
@@ -196,7 +196,7 @@ namespace Kastra.Web
             }
 
             // Update database
-            if(_isInstalled && appSettings.Configuration.EnableDatabaseUpdate)
+            if (_isInstalled && appSettings.Configuration.EnableDatabaseUpdate)
             {
                 UpdateDatabase(app);
             }
@@ -237,7 +237,7 @@ namespace Kastra.Web
             {
                 IViewManager viewManager = serviceProvider.GetService<IViewManager>() as IViewManager;
                 app.UseModuleStaticFiles(
-                    viewManager, 
+                    viewManager,
                     appSettings.Configuration.ModuleDirectoryPath,
                     SiteConfiguration.DefaultModuleResourcesPath);
             }
@@ -248,11 +248,11 @@ namespace Kastra.Web
             });
 
             // Count visits
-            if(_isInstalled)
+            if (_isInstalled)
             {
                 app.UseMiddleware<VisitorCounterMiddleware>();
             }
-            
+
             // Add antiforgery validation
             if (!appSettings.Configuration.DevelopmentMode)
             {
@@ -269,7 +269,7 @@ namespace Kastra.Web
                                 pattern: "{area:exists}/{*catchall}",
                                 defaults: new { controller = "Home", action = "Index" });
 
-                endpoints.AddDefaultEndpoints("Page", "Admin/Module");
+                endpoints.AddDefaultEndpoints("Page", "Admin/Module", appSettings.Configuration.HasDefaultFallback);
             });
         }
 
@@ -287,7 +287,7 @@ namespace Kastra.Web
                 }
             }
         }
-        
+
         /// <summary>
         /// Check if database has already been installed
         /// </summary>
