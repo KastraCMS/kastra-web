@@ -80,7 +80,7 @@ namespace Kastra.Web.API.Controllers
                 }
             }
             else {
-                user.UserName = model.UserName;
+                user.UserName = model.UserName ?? model.Email;
                 user.Email = model.Email;
                 user.DateModified = DateTime.UtcNow;
 
@@ -106,7 +106,9 @@ namespace Kastra.Web.API.Controllers
                     else
                     {
                         if (model.Roles.Any(sr => sr == role.Id))
+                        {
                             await _userManager.AddToRoleAsync(user, role.Name);
+                        }
                     }
                 }
             }
