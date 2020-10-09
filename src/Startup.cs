@@ -184,7 +184,7 @@ namespace Kastra.Web
             AppSettings appSettings = Configuration.GetSection("AppSettings").Get<AppSettings>();
 
             // Add log4net logs
-            loggerFactory.AddLog4Net("log4net.config"); //, Configuration.GetSection("Log4net")
+            loggerFactory.AddLog4Net("log4net.config");
 
             if (env.IsDevelopment())
             {
