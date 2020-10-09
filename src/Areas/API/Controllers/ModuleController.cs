@@ -58,9 +58,6 @@ namespace Kastra.Web.Areas.API.Controllers
         
         public IActionResult Update([FromBody]ModuleModel model)
         {
-            if (!ModelState.IsValid)
-                return BadRequest();
-
             // Save module
             ModuleInfo module = new ModuleInfo();
             module.ModuleId = model.Id;
