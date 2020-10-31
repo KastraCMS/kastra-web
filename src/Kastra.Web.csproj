@@ -29,7 +29,7 @@
   </ItemGroup>
     <PropertyGroup>
       <DefaultItemExcludes>$(DefaultItemExcludes);Modules\**</DefaultItemExcludes>
-      <Version>0.9.33</Version>
+      <Version>0.9.34</Version>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(RunConfiguration)' == 'Custom' ">
       <StartAction>Project</StartAction>
