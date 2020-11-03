@@ -13,6 +13,8 @@ using Kastra.Core.Business;
 using System;
 using Kastra.Web.Filters;
 using System.Collections.Generic;
+using Kastra.Core.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Kastra.Controllers
 {
@@ -25,6 +27,8 @@ namespace Kastra.Controllers
         private readonly ILogger _logger;
         private readonly IStatisticsManager _statisticsManager;
         private readonly IEmailManager _emailManager;
+        private readonly AppSettings _appSettings;
+        private readonly ICaptchaService _captchaService;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -32,13 +36,17 @@ namespace Kastra.Controllers
             ILoggerFactory loggerFactory,
             IStatisticsManager statisticsManager,
             IEmailSender emailSender,
-            IEmailManager emailManager)
+            IEmailManager emailManager,
+            IOptions<AppSettings> appSettings,
+            ICaptchaService captchaService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _statisticsManager = statisticsManager;
             _emailManager = emailManager;
             _logger = loggerFactory.CreateLogger<AccountController>();
+            _appSettings = appSettings.Value;
+            _captchaService = captchaService;
         }
 
         //
@@ -102,6 +110,8 @@ namespace Kastra.Controllers
         public IActionResult Register(string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
+            ViewData["EnableHCaptcha"] = _appSettings.HCaptcha.EnableHCaptcha;
+
             return View();
         }
 
@@ -113,6 +123,20 @@ namespace Kastra.Controllers
         public async Task<IActionResult> Register(RegisterViewModel model, string returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
+
+            if (_appSettings.HCaptcha.EnableHCaptcha)
+            {
+                string token = Request.Form["h-captcha-response"];
+                string ipAddress = Request.HttpContext.Connection.RemoteIpAddress.ToString();
+
+                bool isTokenValid = await _captchaService.Verify(_appSettings.HCaptcha.Secret, token, ipAddress);
+
+                if (!isTokenValid)
+                {
+                    return View(model);
+                }
+            }
+
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email, DateCreated = DateTime.Now, DateModified = DateTime.Now };

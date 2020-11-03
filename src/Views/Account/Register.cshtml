@@ -32,6 +32,12 @@
             <span asp-validation-for="ConfirmPassword"></span>
         </div>
     </div>
+    @if ((bool)ViewData["EnableHCaptcha"])
+    {
+        <div class="field">
+            <div class="h-captcha" data-sitekey=""></div>
+        </div>
+    }
     <div class="actions">
         <button type="submit" class="button button-primary">Register</button>
     </div>
